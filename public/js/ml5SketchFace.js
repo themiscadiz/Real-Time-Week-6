@@ -1,4 +1,4 @@
-window.globals = { a: 0, b: 0, c: 0, d: 0 };
+window.globals = { a: 0, b: 0, c: 0, d: 0, e: 0 };
 
 let faceapi;
 let video;
@@ -13,7 +13,9 @@ let pointsLength = 30;
 
 // Position tracking
 let _position;
+let _positionUp;
 let prevPos;
+let prevPosUp;
 let focalPoint;
 
 // by default all options are set to true
@@ -134,6 +136,7 @@ function drawCircles(feature) {
     // tracking position for buttons
     focalPoint = createVector(lerpPos[27].x, lerpPos[27].y);
     positionTracking(focalPoint);
+    positionTrackingUpDown(focalPoint);
 
 }
 
@@ -168,5 +171,31 @@ function positionTracking(focalPoint) {
       console.log(_position);
     }
     prevPos = _position;
+  
+  }
+
+// **********
+// **********
+// **********
+
+  function positionTrackingUpDown(focalPoint) {
+
+    let rightRectSize = createVector(width, height / 4);
+    if (focalPoint.y < rightRectSize.y) {
+        _positionUp = "UP";
+    }
+  
+    let centerRectSize = createVector(width, height);  
+    if (focalPoint.y < centerRectSize.y && focalPoint.y > rightRectSize.y) {
+        _positionUp = "MIDDLE";
+    }  
+
+    window.globals.e = _positionUp;
+
+    // update Position in console
+    if (prevPosUp !== _positionUp) {
+      console.log(_positionUp);
+    }
+    prevPosUp = _positionUp;
   
   }

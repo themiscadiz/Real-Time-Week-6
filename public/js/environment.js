@@ -1,5 +1,5 @@
 var sphereArray;
-var diamSphere = 3;
+var diamSphere = 2.5;
 var shapeShere = 24;
 
 let mixer;
@@ -7,6 +7,11 @@ const clock = new THREE.Clock();
 
 let loader;
 let model;
+
+let time = 0;
+let counter = 100;
+
+let ballIsMoving = false;
 
 // const raycaster = new THREE.Raycaster();
 
@@ -21,15 +26,18 @@ function createEnvironment(scene) {
   scene.add(ground);
 
   let sphere = createSphere(diamSphere, shapeShere, shapeShere);
-  sphere.position.x = 2;
+  // sphere.position.x = -20;
+  sphere.position.x = -14;
   sphere.position.y = 2.5;
-  sphere.position.z = -20;
-  // scene.add(sphere);
+  sphere.position.z = -3;
+
+  scene.add(sphere);
 
   // To move sphere
   sphere.name = 'sphere-1';
   sphereArray = scene.getObjectByName('sphere-1');
 
+  window.addEventListener("mouseup", (e) => ballBounce(e), false);
 
   // light
   // White directional light at half intensity shining from the top.
@@ -50,6 +58,7 @@ function createEnvironment(scene) {
     // resource URL
     //  './assets/staticModel/icosahedron.glb',
     './assets/staticModel/Room_02.glb',
+    // './assets/staticModel/ToyBox.glb',
     // onLoad callback: what get's called once the full model has loaded
     gltf => {
       model = gltf.scene;
@@ -59,6 +68,8 @@ function createEnvironment(scene) {
       //  model.rotation.y = THREE.Math.degToRad(90);
       //  model.rotateOnAxis(axis, speed);
       model.scale.set(1, 1, 1);
+
+      // model.scale.set(.10, .10, .10);
       console.log("model here");
       console.log(scene.children);
     },
@@ -98,6 +109,7 @@ function createEnvironment(scene) {
     error => {
       console.error(error);
     }
+
   );
 
   // ****************
@@ -259,8 +271,16 @@ function getGround() {
 function createSphere(size) {
   var geometry = new THREE.SphereGeometry(size, 24, 24);
   //replace new THREE.MeshBasicMaterial for new THREE.MeshPhongMaterial
-  var material = new THREE.MeshBasicMaterial({
-    color: '#99ccff'
+
+  //  // ****with texture
+  // let texture = new THREE.TextureLoader().load("../assets/ball-texture-01.png");
+  // let material = new THREE.MeshBasicMaterial({ map: texture });
+  // myMesh = new THREE.Mesh(geometry, material);
+  // return myMesh;
+
+
+  var material = new THREE.MeshPhongMaterial({
+    color: '#eb3471'
   });
 
   var mesh = new THREE.Mesh(
@@ -268,12 +288,22 @@ function createSphere(size) {
     material
   );
 
-  // mesh.castShadow = true;
+  mesh.castShadow = true;
   return mesh;
 }
 
 
+function ballBounce(){
+  // ballIsMoving = true;
+  ballIsMoving = !ballIsMoving;
+}
+
+
+
 function updateEnvironment(scene) {
+
+  // let moveSphere = bounceBall();
+  // console.log(moveSphere);
 
   const delta = clock.getDelta();
   if (mixer) {
@@ -281,6 +311,27 @@ function updateEnvironment(scene) {
     mixer.update(delta);
   }
 
+  if(ballIsMoving){
+    // sphereArray.rotation.x = time * 4;
+    // sphereArray.position.y = 0.5 + Math.abs(Math.sin(time * 3)) * 2;
+    // sphereArray.position.z = Math.cos(time) * 4;
+
+    sphereArray.position.y = 2.4 + Math.abs(Math.sin(time * 3)) * 2;
+    sphereArray.position.x = -14 + Math.cos(time) * 1;
+    sphereArray.position.z = 0 + Math.cos(time) * 2;
+
+    time += delta;
+  }
+  if(!ballIsMoving){
+    sphereArray.position.y = 2.40;
+    sphereArray.position.x = -14;
+    sphereArray.position.z = 0;
+    // sphereArray.position.y = 2.5 + Math.abs(Math.sin(counter * 3)) * 2;
+    // sphereArray.position.x = -20 + Math.cos(counter) * 4;
+    // counter = counter -0.1;
+  }
+
+  // console.log(ballIsMoving);
   // sphereArray.position.x += 0.01;
 }
 

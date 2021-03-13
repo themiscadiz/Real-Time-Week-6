@@ -8,7 +8,6 @@
  * Aidan Nelson, April 2020
  *
  */
-
 class Scene {
   constructor(_movementCallback) {
     this.movementCallback = _movementCallback;
@@ -30,6 +29,16 @@ class Scene {
     this.x = 0;
     this.easing = 0.08;
 
+    this.prevPosUp;
+    this._PosUp;
+    this.y = 1;
+    this.easing_y = 0.08;
+
+    // Move Ball
+    this.moveBall = false;
+
+    this.time = 3;
+
     //THREE Camera
     this.camera = new THREE.PerspectiveCamera(
       50,
@@ -37,8 +46,8 @@ class Scene {
       0.1,
       5000
     );
+
     this.camera.position.set(0, 1, 20);
-    // this.camera.position.set(0, 10, 10);
     this.scene.add(this.camera);
 
     // create an AudioListener and add it to the camera
@@ -84,10 +93,10 @@ class Scene {
 
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  // Lighting 💡
+  // Lighting 💡 0.7
 
   addLights() {
-    this.scene.add(new THREE.AmbientLight(0xffffe6, 0.7));
+    this.scene.add(new THREE.AmbientLight(0xffffe6, 0.9));
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -99,17 +108,55 @@ class Scene {
     let videoMaterial = makeVideoMaterial("local");
     let materialArrow = new THREE.MeshBasicMaterial({ color: ranColor });
 
-    let _head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 24), videoMaterial);
+    let _head = new THREE.Mesh(new THREE.PlaneGeometry(4, 2, 1), videoMaterial);
+    // let _head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 24), videoMaterial);
     let _arrow = new THREE.Mesh(new THREE.ConeGeometry(.50, 1, 32), materialArrow);
 
     let rotateMotion = -90;
-    _head.position.set(0, 1, 2);
-    _arrow.position.set(0, 3, 2);
+    _head.position.set(0, 1, 20);
+    // _head.position.set(0, 1, 2);
+    // _arrow.position.set(0, 3, 2);
+    _arrow.position.set(0, 3, 4);
+    _head.scale.x = -1;
     _arrow.rotation.x = THREE.Math.degToRad(rotateMotion);
+
+  // // ****************
+  // // ****************
+  // // ****************
+  // // OTHER BEAR
+  // // Load the GLTF space model
+  // this.loader = new THREE.GLTFLoader();
+  // this.loader.load(
+  //   // resource URL
+  //   './assets/staticModel/bear.glb',
+  //   // onLoad callback: what get's called once the full model has loaded
+  //   gltf => {
+  //     this.model = gltf.scene;
+  //     this.scene.add(gltf.scene);
+
+  //     this.model.position.x = 0;
+  //     this.model.position.y = 3;
+  //     this.model.position.z = 4;
+
+  //     this.model.scale.set(.02, .02, .02);
+  //   },
+  //   // onProgress callback: optional function for showing progress on model load
+  //   undefined,
+  //   // onError callback
+  //   error => {
+  //     console.error(error);
+  //   }
+  // );
+
+  // // ****************
+  // // ****************
+  // // ****************
+
 
     // https://threejs.org/docs/index.html#api/en/objects/Group
     this.playerGroup = new THREE.Group();
-    this.playerGroup.position.set(0, 0.5, 0);
+    // this.playerGroup.position.set(0, 0.5, 0);
+
     this.playerGroup.add(_head);
     this.playerGroup.add(_arrow);
 
@@ -122,7 +169,8 @@ class Scene {
     let videoMaterial = makeVideoMaterial(_id);
     let materialArrow = makeVideoMaterial(_id);
 
-    let _head = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), videoMaterial);
+    let _head = new THREE.Mesh(new THREE.PlaneGeometry(4, 2, 1), videoMaterial);
+    // let _head = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), videoMaterial);
     let _arrow = new THREE.Mesh(new THREE.ConeGeometry(.50, 1, 32), materialArrow);
 
 
@@ -130,6 +178,8 @@ class Scene {
 
     _head.position.set(0, 3, -24);
     _arrow.position.set(0, 5, -24);
+
+    _head.scale.x = -1;
 
     // https://threejs.org/docs/index.html#api/en/objects/Group
     var group = new THREE.Group();
@@ -207,7 +257,8 @@ class Scene {
           clients[_id].group.position
         );
 
-        if (distSquared > 500) {
+        // if (distSquared > 500) { //Original
+          if (distSquared > 1000) {
           // console.log('setting vol to 0')
           audioEl.volume = 0;
         } else {
@@ -243,50 +294,6 @@ class Scene {
   }
 
 
-  // getPlayerPosition() {
-  //   //  // Direct tracking from Ml5
-  //   // this.moveInX = (globals.a * -1) * 20;
-
-  //   // this fucntion compare previous position of head
-  //   // this.getPos();
-
-  //   // TODO: use quaternion or are euler angles fine here?
-  //   return [
-  //     [
-  //       // this move camera and player in a trigger
-  //       // this.moveToNewPos(),
-  //       // ************
-  //       // Easing
-  //       this.targetX = this.moveInX,
-  //       this.dx = this.targetX - this.x,
-  //       this.x += this.dx * this.easing,
-
-  //       this.playerGroup.position.x = this.x,
-  //       this.camera.position.x = this.x,
-  //       // ************
-
-  //       // //original
-  //       // this.playerGroup.position.x,
-
-  //       // //  Direct tracking from\ Ml5
-  //       // this.playerGroup.position.x = this.moveInX,
-  //       // this.camera.position.x = this.moveInX,
-
-  //       // ************
-  //       // continue with line of code
-  //       this.playerGroup.position.y,
-  //       this.playerGroup.position.z,
-  //     ],
-  //     [
-  //       this.playerGroup.quaternion._x,
-  //       this.playerGroup.quaternion._y,
-  //       // this.playerGroup.quaternion._y = this.moveInQuaY,
-  //       this.playerGroup.quaternion._z,
-  //       this.playerGroup.quaternion._w,
-  //     ],
-  //   ];
-  // }
-
   getPos() {
 
     this._Pos = globals.d;
@@ -300,13 +307,13 @@ class Scene {
   moveToNewPos() {
     if (this._Pos === 'RIGHT') {
       // this.moveInX += 1;
-      this.moveInX = 10;
+      this.moveInX = 14;
       console.log("this is right", this.moveInX);
     }
 
     else if (this._Pos === 'LEFT') {
       // this.moveInX += -1;
-      this.moveInX = -10;
+      this.moveInX = -14;
       console.log("this is left", this.moveInX);
     }
 
@@ -316,23 +323,55 @@ class Scene {
   }
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
+
+
+  getPosUp() {
+
+    this._PosUp = globals.e;
+    if (this.prevPosUp !== this._PosUp) {
+      console.log("three posUp: ", this._PosUp);
+      this.moveToNewPosUp();
+    }
+    this.prevPosUp = this._PosUp;
+  }
+
+  moveToNewPosUp() {
+    if (this._PosUp === 'UP') {
+      this.moveInY = 10;
+      console.log("this is up", this.moveInY);
+    }
+
+    else if (this._PosUp === 'MIDDLE') {
+      this.moveInY = 1;
+      console.log("this is middle", this.moveInY);
+    }
+
+    else {
+      this.moveInY = 1;
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
   setupRaycaster() {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
     this.previousIntersects = [];
-    window.addEventListener("mousemove", (e) => this.onMouseMove(e), false);
+    window.addEventListener("mouseup", (e) => this.onMouseMove(e), false);
     // window.addEventListener("mouseup", (e) => this.onMouseUp(e), false);
   }
 
   checkRaycaster() {
     // reset all previous intersects
+    this.moveBall = false;
     for (let i = 0; i < this.previousIntersects.length; i++) {
       let obj = this.previousIntersects[i];
       // obj.scale.set(1, 1, 1);
       // obj.position.x;
     }
     //check raycaster
-    this.raycaster.setFromCamera( this.mouse, this.camera );
+    this.raycaster.setFromCamera(this.mouse, this.camera);
     // calculate objects intersecting the picking ray
     const intersects = this.raycaster.intersectObjects(this.scene.children);
 
@@ -340,20 +379,29 @@ class Scene {
       // console.log(intersects[i]);
 
       // intersects[i].object.material.color.set(0xff0000);
+
       // changing scale of this object
       // intersects[i].object.scale.set(3,3,3);
+
+      this.moveBall = intersects[i];
+      // this.moveBall = true;
+
       // intersects[i].object.position.x += 0.01;
+
       this.previousIntersects.push(intersects[i].object);
-     
     }
-   
-    console.log(intersects.length);
+    // this.moveShpere();
+    // console.log(intersects.length, "this.moveBall" + this.moveBall);
+  }
+
+  moveShpere() {
+    console.log("this.moveBall" + this.moveBall);
+    return this.moveBall;
   }
 
   onMouseMove() {
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -361,8 +409,12 @@ class Scene {
   // Rendering 🎥
 
   update() {
+   
 
     this.getPos();
+    this.getPosUp();
+
+    // this.time += 0.1,
     // ************
     // Easing
     this.targetX = this.moveInX,
@@ -373,7 +425,15 @@ class Scene {
       this.camera.position.x = this.x,
 
       // ************
+      // Easing up and down
+      this.targetY = this.moveInY,
+      this.dy = this.targetY - this.y,
+      this.y += this.dy * this.easing_y,
 
+      this.playerGroup.position.y = this.y,
+      this.camera.position.y = this.y,
+      // ************
+     
       // //  Direct tracking from\ Ml5
       // this.playerGroup.position.x = (globals.a * -1) * 20,
       // this.camera.position.x = (globals.a * -1) * 20,
